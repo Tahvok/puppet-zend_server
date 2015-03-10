@@ -369,7 +369,7 @@ class zend_server (
   ### Managed resources
   package { 'apache':
     ensure => $apache::manage_package,
-    name   => $apache::package,
+    name   => $package,
   }
 
   service { 'apache':
