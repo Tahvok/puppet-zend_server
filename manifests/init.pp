@@ -124,7 +124,7 @@
 #   Can be defined also by the (top scope) variables $apache_audit_only
 #   and $audit_only
 #
-# Default class params - As defined in apache::params.
+# Default class params - As defined in zend_server::params.
 # Note that these variables are mostly defined and used in the module itself,
 # overriding the default values might not affected all the involved components.
 # Set and override them only if you know what you're doing.
@@ -189,7 +189,7 @@
 #   Can be defined also by the (top scope) variable $apache_port
 #
 # [*ssl_port*]
-#   The ssl port, used if apache::ssl is included and monitor/firewall
+#   The ssl port, used if zend_server::ssl is included and monitor/firewall
 #   are enabled
 #
 # [*protocol*]
@@ -258,7 +258,7 @@ class zend_server (
   $protocol                  = params_lookup( 'protocol' ),
   $version                   = params_lookup( 'version' ),
   $php_version               = params_lookup( 'php_version' ),
-  ) inherits apache::params {
+  ) inherits zend_server::params {
 
   $bool_source_dir_purge=any2bool($source_dir_purge)
   $bool_service_autorestart=any2bool($service_autorestart)
@@ -273,205 +273,205 @@ class zend_server (
 
   ### Calculation of variables that dependes on arguments
   $vdir = $::operatingsystem ? {
-    /(?i:Ubuntu|Debian|Mint)/ => "${apache::config_dir}/sites-available",
-    SLES                      => "${apache::config_dir}/vhosts.d",
-    default                   => "${apache::config_dir}/conf.d",
+    /(?i:Ubuntu|Debian|Mint)/ => "${zend_server::config_dir}/sites-available",
+    SLES                      => "${zend_server::config_dir}/vhosts.d",
+    default                   => "${zend_server::config_dir}/conf.d",
   }
 
   $dotconf_dir = $::operatingsystem ? {
     /(?i:Ubuntu)/ => $::lsbmajdistrelease ? {
-      /14/    => "${apache::config_dir}/conf-available",
-      default => "${apache::config_dir}/conf.d",
+      /14/    => "${zend_server::config_dir}/conf-available",
+      default => "${zend_server::config_dir}/conf.d",
     },
-    default => "${apache::config_dir}/conf.d",
+    default => "${zend_server::config_dir}/conf.d",
   }
 
 
   ### Definition of some variables used in the module
-  $package = "${apache::package_prefix}${apache::php_version}"
+  $package = "${zend_server::package_prefix}${zend_server::php_version}"
 
 
-  $manage_package = $apache::bool_absent ? {
+  $manage_package = $zend_server::bool_absent ? {
     true  => 'absent',
-    false => $apache::version ? {
+    false => $zend_server::version ? {
         ''      => 'present',
-        default => $apache::version,
+        default => $zend_server::version,
     },
   }
 
-  $manage_service_enable = $apache::bool_disableboot ? {
+  $manage_service_enable = $zend_server::bool_disableboot ? {
     true    => false,
-    default => $apache::bool_disable ? {
+    default => $zend_server::bool_disable ? {
       true    => false,
-      default => $apache::bool_absent ? {
+      default => $zend_server::bool_absent ? {
         true  => false,
         false => true,
       },
     },
   }
 
-  $manage_service_ensure = $apache::bool_disable ? {
+  $manage_service_ensure = $zend_server::bool_disable ? {
     true    => 'stopped',
-    default =>  $apache::bool_absent ? {
+    default =>  $zend_server::bool_absent ? {
       true    => 'stopped',
       default => 'running',
     },
   }
 
-  $manage_service_autorestart = $apache::bool_service_autorestart ? {
+  $manage_service_autorestart = $zend_server::bool_service_autorestart ? {
     true    => 'Service[apache]',
     false   => undef,
   }
 
-  $manage_file = $apache::bool_absent ? {
+  $manage_file = $zend_server::bool_absent ? {
     true    => 'absent',
     default => 'present',
   }
 
-  if $apache::bool_absent == true
-  or $apache::bool_disable == true
-  or $apache::bool_monitor == false
-  or $apache::bool_disableboot == true {
+  if $zend_server::bool_absent == true
+  or $zend_server::bool_disable == true
+  or $zend_server::bool_monitor == false
+  or $zend_server::bool_disableboot == true {
     $manage_monitor = false
   } else {
     $manage_monitor = true
   }
 
-  if $apache::bool_absent == true or $apache::bool_disable == true {
+  if $zend_server::bool_absent == true or $zend_server::bool_disable == true {
     $manage_firewall = false
   } else {
     $manage_firewall = true
   }
 
-  $manage_audit = $apache::bool_audit_only ? {
+  $manage_audit = $zend_server::bool_audit_only ? {
     true  => 'all',
     false => undef,
   }
 
-  $manage_file_replace = $apache::bool_audit_only ? {
+  $manage_file_replace = $zend_server::bool_audit_only ? {
     true  => false,
     false => true,
   }
 
-  $manage_file_source = $apache::source ? {
+  $manage_file_source = $zend_server::source ? {
     ''        => undef,
-    default   => $apache::source,
+    default   => $zend_server::source,
   }
 
-  $manage_file_content = $apache::template ? {
+  $manage_file_content = $zend_server::template ? {
     ''        => undef,
-    default   => template($apache::template),
+    default   => template($zend_server::template),
   }
 
   ### Managed resources
   package { 'apache':
-    ensure => $apache::manage_package,
+    ensure => $zend_server::manage_package,
     name   => $package,
   }
 
   service { 'apache':
-    ensure     => $apache::manage_service_ensure,
-    name       => $apache::service,
-    enable     => $apache::manage_service_enable,
-    hasstatus  => $apache::service_status,
-    pattern    => $apache::process,
+    ensure     => $zend_server::manage_service_ensure,
+    name       => $zend_server::service,
+    enable     => $zend_server::manage_service_enable,
+    hasstatus  => $zend_server::service_status,
+    pattern    => $zend_server::process,
     require    => $service_requires,
   }
 
   file { 'apache.conf':
-    ensure  => $apache::manage_file,
-    path    => $apache::config_file,
-    mode    => $apache::config_file_mode,
-    owner   => $apache::config_file_owner,
-    group   => $apache::config_file_group,
+    ensure  => $zend_server::manage_file,
+    path    => $zend_server::config_file,
+    mode    => $zend_server::config_file_mode,
+    owner   => $zend_server::config_file_owner,
+    group   => $zend_server::config_file_group,
     require => Package['apache'],
-    notify  => $apache::manage_service_autorestart,
-    source  => $apache::manage_file_source,
-    content => $apache::manage_file_content,
-    replace => $apache::manage_file_replace,
-    audit   => $apache::manage_audit,
+    notify  => $zend_server::manage_service_autorestart,
+    source  => $zend_server::manage_file_source,
+    content => $zend_server::manage_file_content,
+    replace => $zend_server::manage_file_replace,
+    audit   => $zend_server::manage_audit,
   }
 
   # The whole apache configuration directory can be recursively overriden
-  if $apache::source_dir {
+  if $zend_server::source_dir {
     file { 'apache.dir':
       ensure  => directory,
-      path    => $apache::config_dir,
+      path    => $zend_server::config_dir,
       require => Package['apache'],
-      notify  => $apache::manage_service_autorestart,
-      source  => $apache::source_dir,
+      notify  => $zend_server::manage_service_autorestart,
+      source  => $zend_server::source_dir,
       recurse => true,
-      purge   => $apache::bool_source_dir_purge,
-      force   => $apache::bool_source_dir_purge,
-      replace => $apache::manage_file_replace,
-      audit   => $apache::manage_audit,
+      purge   => $zend_server::bool_source_dir_purge,
+      force   => $zend_server::bool_source_dir_purge,
+      replace => $zend_server::manage_file_replace,
+      audit   => $zend_server::manage_audit,
     }
   }
 
-  if $apache::config_file_default_purge {
-    apache::vhost { 'default':
+  if $zend_server::config_file_default_purge {
+    zend_server::vhost { 'default':
       enable    => false,
       priority  => '',
     }
   }
 
   ### Include custom class if $my_class is set
-  if $apache::my_class {
-    include $apache::my_class
+  if $zend_server::my_class {
+    include $zend_server::my_class
   }
 
 
   ### Provide puppi data, if enabled ( puppi => true )
-  if $apache::bool_puppi == true {
+  if $zend_server::bool_puppi == true {
     $classvars=get_class_args()
     puppi::ze { 'apache':
-      ensure    => $apache::manage_file,
+      ensure    => $zend_server::manage_file,
       variables => $classvars,
-      helper    => $apache::puppi_helper,
+      helper    => $zend_server::puppi_helper,
     }
   }
 
 
   ### Service monitoring, if enabled ( monitor => true )
-  if $apache::monitor_tool {
-    monitor::port { "apache_${apache::protocol}_${apache::port}":
-      protocol => $apache::protocol,
-      port     => $apache::port,
-      target   => $apache::monitor_target,
-      tool     => $apache::monitor_tool,
-      enable   => $apache::manage_monitor,
+  if $zend_server::monitor_tool {
+    monitor::port { "apache_${zend_server::protocol}_${zend_server::port}":
+      protocol => $zend_server::protocol,
+      port     => $zend_server::port,
+      target   => $zend_server::monitor_target,
+      tool     => $zend_server::monitor_tool,
+      enable   => $zend_server::manage_monitor,
     }
     monitor::process { 'apache_process':
-      process  => $apache::process,
-      service  => $apache::service,
-      pidfile  => $apache::pid_file,
-      user     => $apache::process_user,
-      argument => $apache::process_args,
-      tool     => $apache::monitor_tool,
-      enable   => $apache::manage_monitor,
+      process  => $zend_server::process,
+      service  => $zend_server::service,
+      pidfile  => $zend_server::pid_file,
+      user     => $zend_server::process_user,
+      argument => $zend_server::process_args,
+      tool     => $zend_server::monitor_tool,
+      enable   => $zend_server::manage_monitor,
     }
   }
 
 
   ### Firewall management, if enabled ( firewall => true )
-  if $apache::bool_firewall == true {
-    firewall { "apache_${apache::protocol}_${apache::port}":
-      source      => $apache::firewall_src,
-      destination => $apache::firewall_dst,
-      protocol    => $apache::protocol,
-      port        => $apache::port,
+  if $zend_server::bool_firewall == true {
+    firewall { "apache_${zend_server::protocol}_${zend_server::port}":
+      source      => $zend_server::firewall_src,
+      destination => $zend_server::firewall_dst,
+      protocol    => $zend_server::protocol,
+      port        => $zend_server::port,
       action      => 'allow',
       direction   => 'input',
-      tool        => $apache::firewall_tool,
-      enable      => $apache::manage_firewall,
+      tool        => $zend_server::firewall_tool,
+      enable      => $zend_server::manage_firewall,
     }
   }
 
 
   ### Debugging, if enabled ( debug => true )
-  if $apache::bool_debug == true {
+  if $zend_server::bool_debug == true {
     file { 'debug_apache':
-      ensure  => $apache::manage_file,
+      ensure  => $zend_server::manage_file,
       path    => "${settings::vardir}/debug-apache",
       mode    => '0640',
       owner   => 'root',
