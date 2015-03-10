@@ -365,8 +365,9 @@ class zend_server (
 
   ### Managed resources
   package { 'apache':
-    ensure => $zend_server::manage_package,
-    name   => $package,
+    ensure  => $zend_server::manage_package,
+    name    => $package,
+    require => Class['zend_server::repo'],
   }
 
   service { 'apache':
