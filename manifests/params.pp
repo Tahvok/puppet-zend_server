@@ -148,5 +148,6 @@ class zend_server::params {
   $puppi_helper = 'standard'
   $debug = false
   $audit_only = false
+  $php_version = '5.3'
 
 }
