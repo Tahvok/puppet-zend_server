@@ -119,7 +119,7 @@
 #    aliases                    => '/phpmyadmin /usr/share/phpMyAdmin',
 #  }
 #
-define apache::vhost (
+define zend_server::vhost (
   $server_admin                 = '',
   $server_name                  = '',
   $docroot                      = '',

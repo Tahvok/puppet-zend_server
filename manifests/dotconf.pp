@@ -20,7 +20,7 @@
 # or
 # apache::dotconf { "trac": content => template("trac/apache.conf.erb") }
 #
-define apache::dotconf (
+define zend_server::dotconf (
   $enable   = true,
   $source   = '' ,
   $content  = '' ,

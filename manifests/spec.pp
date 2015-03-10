@@ -9,7 +9,7 @@
 # This class is not intended to be used directly.
 # Use it as reference
 #
-class apache::spec inherits apache {
+class zend_server::spec inherits apache {
 
   # This just a test to override the arguments of an existing resource
   # Note that you can achieve this same result with just:

@@ -2,7 +2,7 @@
 #
 # Apache resources specific for passenger
 #
-class apache::passenger {
+class zend_server::passenger {
 
   include apache
 

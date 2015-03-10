@@ -12,7 +12,7 @@
 # This class is not intended to be used directly.
 # It may be imported or inherited by other classes
 #
-class apache::params {
+class zend_server::params {
 
   ### Application specific parameters
   $package_modssl = $::operatingsystem ? {
@@ -23,10 +23,10 @@ class apache::params {
 
   ### Application related parameters
 
-  $package = $::operatingsystem ? {
+  $package_prefix = $::operatingsystem ? {
     /(?i:Ubuntu|Debian|Mint)/ => 'apache2',
     /(?i:SLES|OpenSuSE)/      => 'apache2',
-    default                   => 'httpd',
+    default                   => 'zend-server-php-',
   }
 
   $service = $::operatingsystem ? {

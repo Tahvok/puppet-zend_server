@@ -24,7 +24,7 @@
 #   templatepath => "mymod/apache/vihost"
 # }
 #
-define apache::virtualhost (
+define zend_server::virtualhost (
   $templatefile   = 'virtualhost.conf.erb' ,
   $templatepath   = 'apache/virtualhost' ,
   $documentroot   = '' ,

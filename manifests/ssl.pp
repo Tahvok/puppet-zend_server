@@ -2,7 +2,7 @@
 #
 # Apache resources specific for SSL
 #
-class apache::ssl {
+class zend_server::ssl {
 
   include apache
 

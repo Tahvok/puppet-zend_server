@@ -130,8 +130,8 @@
 # Set and override them only if you know what you're doing.
 # Note also that you can't override/set them via top scope variables.
 #
-# [*package*]
-#   The name of apache package
+# [*package_prefix*]
+#   The name of zend server package
 #
 # [*service*]
 #   The name of apache service
@@ -213,7 +213,7 @@
 # == Author
 #   Alessandro Franceschi <al@lab42.it/>
 #
-class apache (
+class zend_server (
   $my_class                  = params_lookup( 'my_class' ),
   $source                    = params_lookup( 'source' ),
   $source_dir                = params_lookup( 'source_dir' ),
@@ -235,7 +235,7 @@ class apache (
   $firewall_dst              = params_lookup( 'firewall_dst' , 'global' ),
   $debug                     = params_lookup( 'debug' , 'global' ),
   $audit_only                = params_lookup( 'audit_only' , 'global' ),
-  $package                   = params_lookup( 'package' ),
+  $package_prefix            = params_lookup( 'package_prefix' ),
   $service                   = params_lookup( 'service' ),
   $service_status            = params_lookup( 'service_status' ),
   $service_requires          = params_lookup( 'service_requires' ),
@@ -256,7 +256,8 @@ class apache (
   $port                      = params_lookup( 'port' ),
   $ssl_port                  = params_lookup( 'ssl_port' ),
   $protocol                  = params_lookup( 'protocol' ),
-  $version                   = params_lookup( 'version' )
+  $version                   = params_lookup( 'version' ),
+  $php_version               = params_lookup( 'php_version' ),
   ) inherits apache::params {
 
   $bool_source_dir_purge=any2bool($source_dir_purge)
@@ -287,6 +288,12 @@ class apache (
 
 
   ### Definition of some variables used in the module
+  $package = $php_version ? {
+    '5.4'   => "${package_prefix}5.4",
+    default => "${package_prefix}5.3",
+  }
+
+
   $manage_package = $apache::bool_absent ? {
     true  => 'absent',
     false => $apache::version ? {

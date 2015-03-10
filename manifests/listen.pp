@@ -14,7 +14,7 @@
 # == Examples
 # apache::listen { '8080':}
 #
-define apache::listen (
+define zend_server::listen (
   $namevirtualhost = '*',
   $ensure          = 'present',
   $template        = 'apache/listen.conf.erb',

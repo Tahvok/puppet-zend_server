@@ -47,7 +47,7 @@
 # }
 #
 #
-define apache::module (
+define zend_server::module (
   $ensure          = 'present',
   $templatefile    = '',
   $install_package = false,

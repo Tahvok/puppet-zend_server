@@ -52,7 +52,7 @@
 #   htpasswd_file  => '/etc/httpd/httpd.passwd'
 # }
 #
-define apache::htpasswd (
+define zend_server::htpasswd (
   $ensure           = 'present',
   $htpasswd_file    = '',
   $username         = $name,
