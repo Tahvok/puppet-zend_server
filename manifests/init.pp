@@ -288,7 +288,7 @@ class zend_server (
 
 
   ### Definition of some variables used in the module
-  $package = $php_version ? {
+  $package = $apache::php_version ? {
     '5.4'   => "${package_prefix}5.4",
     default => "${package_prefix}5.3",
   }
