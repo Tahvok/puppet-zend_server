@@ -259,6 +259,7 @@ class zend_server (
   $version                   = params_lookup( 'version' ),
   $php_version               = params_lookup( 'php_version' ),
   ) inherits zend_server::params {
+  require zend_server::repo
 
   $bool_source_dir_purge=any2bool($source_dir_purge)
   $bool_service_autorestart=any2bool($service_autorestart)
@@ -367,7 +368,6 @@ class zend_server (
   package { 'apache':
     ensure  => $zend_server::manage_package,
     name    => $package,
-    require => Class['zend_server::repo'],
   }
 
   service { 'apache':
